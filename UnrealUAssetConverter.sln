@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnrealUAssetConverter", "UnrealUAssetConverter\UnrealUAssetConverter.csproj", "{9CBF59D5-018B-469C-AF95-281154395787}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9CBF59D5-018B-469C-AF95-281154395787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CBF59D5-018B-469C-AF95-281154395787}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CBF59D5-018B-469C-AF95-281154395787}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CBF59D5-018B-469C-AF95-281154395787}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3BB2AAFB-EA32-4A94-A8BC-2B42A4D36FE4}
+	EndGlobalSection
+EndGlobal
