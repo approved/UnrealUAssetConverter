@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnrealUAssetConverter", "UnrealUAssetConverter\UnrealUAssetConverter.csproj", "{9CBF59D5-018B-469C-AF95-281154395787}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "\Examples", "{E8C1EE4C-8C72-43F3-A171-561E36220FD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadUAssetInfo", "Examples\ReadUAssetInfo\ReadUAssetInfo.csproj", "{789FBE90-C3ED-4E1E-A539-10822B520E9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +19,16 @@ Global
 		{9CBF59D5-018B-469C-AF95-281154395787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CBF59D5-018B-469C-AF95-281154395787}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CBF59D5-018B-469C-AF95-281154395787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{789FBE90-C3ED-4E1E-A539-10822B520E9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{789FBE90-C3ED-4E1E-A539-10822B520E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{789FBE90-C3ED-4E1E-A539-10822B520E9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{789FBE90-C3ED-4E1E-A539-10822B520E9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{789FBE90-C3ED-4E1E-A539-10822B520E9B} = {E8C1EE4C-8C72-43F3-A171-561E36220FD0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BB2AAFB-EA32-4A94-A8BC-2B42A4D36FE4}
