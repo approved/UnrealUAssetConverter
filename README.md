@@ -1,2 +1,2 @@
-# UnrealUAssetConverter
- Read and create .uasset and .uexp files
+# \[WIP\] UnrealUAssetConverter
+An API designed to read, create, and modify .uasset and .uexp files
