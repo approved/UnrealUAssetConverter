@@ -7,21 +7,33 @@ namespace ReadUAssetInfo
 {
     public class Program
     {
+        private static string AssetFile;
+
         public static void Main(string[] args)
         {
-            if(args.Length > 0)
+            if(args.Length > 0 && File.Exists(args[0]))
+            { 
+                AssetFile = args[0];
+            }
+            else
             {
-                if (File.Exists(args[0]))
+                Console.WriteLine("Enter the path to the uasset file you wish to read:");
+                AssetFile = Console.ReadLine();
+
+                if (!File.Exists(AssetFile))
                 {
-                    using (UAssetConverter uaConverter = new UAssetConverter(args[0]))
-                    {
-                        FPackageFileSummary summ = uaConverter.GetSummary();
-                        Console.WriteLine($"Package Size: {summ.TotalSize} bytes");
-                        Console.WriteLine($"Package Flags: {summ.PackageFlags}");
-                        Console.WriteLine($"{summ.ImportCount} imported objects");
-                        Console.WriteLine($"{summ.ExportCount} exported objects");
-                    }
+                    Console.WriteLine($"Could not locate file {AssetFile}. Please try again");
+                    return;
                 }
+            }
+
+            using (UAssetConverter uaConverter = new UAssetConverter(AssetFile))
+            {
+                FPackageFileSummary summ = uaConverter.GetSummary();
+                Console.WriteLine($"Package Size: {summ.TotalSize} bytes");
+                Console.WriteLine($"Package Flags: {summ.PackageFlags}");
+                Console.WriteLine($"{summ.ImportCount} imported objects");
+                Console.WriteLine($"{summ.ExportCount} exported objects");
             }
         }
     }
