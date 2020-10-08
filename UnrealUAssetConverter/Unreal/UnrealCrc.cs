@@ -1,6 +1,6 @@
 ﻿namespace UnrealUAssetConverter.Unreal
 {
-    public class Crc
+    public static class UnrealCrc
     {
         private static readonly uint[][] CRCTablesSB8 = new uint[][] {
 			new uint[]{
@@ -149,7 +149,13 @@
 			}
 		};
 
-        public static uint StrCrc32(string data, uint remainder = 0)
+		/// <summary>
+		/// String CRC for creating a CasePreservingHash for <see cref="FNameEntrySerialized"/> names.
+		/// </summary>
+		/// <param name="data">The string to be hashed.</param>
+		/// <param name="remainder">The result of a previous call to this function.</param>
+		/// <returns>A codeword computed from the input string.</returns>
+		public static uint StrCrc32(string data, uint remainder = 0)
         {
             remainder = ~remainder;
             int i = 0;

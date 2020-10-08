@@ -18,7 +18,7 @@ namespace UnrealUAssetConverter.Unreal
             this.FileOffset = fileOffset;
             this.Name.Value = str;
             this.NonCasePreservingHash = 0;
-            this.CasePreservingHash = (ushort)(Crc.StrCrc32(str) & 0xFFFF);
+            this.CasePreservingHash = (ushort)(UnrealCrc.StrCrc32(str) & 0xFFFF);
         }
 
         public FNameEntrySerialized(Stream stream)
@@ -34,7 +34,7 @@ namespace UnrealUAssetConverter.Unreal
                 this.NonCasePreservingHash = br.ReadUInt16();
                 this.CasePreservingHash = br.ReadUInt16();
 
-                ushort hash = (ushort)(Crc.StrCrc32(this.Name) & 0xFFFF);
+                ushort hash = (ushort)(UnrealCrc.StrCrc32(this.Name) & 0xFFFF);
                 if (CasePreservingHash != hash)
                 {
                     throw new InvalidDataException($"Invalid Case Hash found in UObject: {this.Name}. Expected {hash:X4} but found {this.CasePreservingHash:X4}.");
