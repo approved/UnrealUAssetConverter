@@ -44,10 +44,12 @@ namespace UnrealUAssetConverter
         public UAssetConverter(FileInfo assetFile, FileInfo exportFile)
         {
             Contract.Requires(assetFile.Exists);
-            Contract.Requires(exportFile.Exists);
 
             this._openAssetStream = assetFile.OpenRead();
-            this._openExportStream = exportFile.OpenRead();
+            if (exportFile.Exists)
+            {
+                this._openExportStream = exportFile.OpenRead();
+            }
         }
 
         public UAssetConverter(string assetFile, string exportFile = "")
