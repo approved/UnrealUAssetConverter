@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
 using System.Text;
 using UnrealUAssetConverter.Unreal;
 
