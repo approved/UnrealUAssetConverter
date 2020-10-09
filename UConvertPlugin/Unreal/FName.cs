@@ -4,13 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     public class FName
     {
         public const string NAME_None = "NAME_None";
 
         public string Name;
+        public int NameCount = 0;
 
         public FName(string str)
         {
@@ -28,14 +29,14 @@ namespace UnrealUAssetConverter.Unreal
             using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, true))
             {
                 int nameIndex = br.ReadInt32();
-                int nameNumber = br.ReadInt32();
+                this.NameCount = br.ReadInt32();
                 List<FNameEntrySerialized>? fNameEntries = names.ToList();
                 if (fNameEntries.Count > nameIndex)
                 {
-                    Name = fNameEntries[nameIndex].Name;
-                    if (nameNumber > 0)
+                    this.Name = fNameEntries[nameIndex].Name;
+                    if (this.NameCount > 0)
                     {
-                        Name += "_" + nameNumber;
+                        this.Name += "_" + this.NameCount;
                     }
                 }
                 else
@@ -47,18 +48,18 @@ namespace UnrealUAssetConverter.Unreal
 
         public FName(IEnumerable<FNameEntrySerialized> names, string baseName = NAME_None)
         {
-            int numCreated = 0;
+            this.NameCount = 0;
             foreach (FNameEntrySerialized name in names)
             {
                 if (name.Name.Equals(baseName))
                 {
-                    numCreated++;
+                    this.NameCount++;
                 }
             }
             this.Name = baseName;
-            if (numCreated > 0)
+            if (this.NameCount > 0)
             {
-                this.Name += $"_{numCreated}";
+                this.Name += $"_{this.NameCount}";
             }
         }
 

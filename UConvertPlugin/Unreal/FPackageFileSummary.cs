@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UConvertPlugin.Unreal;
 
 /* Base summaries provided by UE4 Source @ https://github.com/EpicGames/UnrealEngine */
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     /// <summary>
     /// A "table of contents" for an Unreal package file.
@@ -13,10 +14,10 @@ namespace UnrealUAssetConverter.Unreal
     /// </summary>
     public class FPackageFileSummary
     {
-        public const uint   PACKAGE_FILE_TAG                = 0x9E2A83C1;
-        public const int    CURRENT_LEGACY_FILE_VERSION    = -7;
+        public const uint PACKAGE_FILE_TAG = 0x9E2A83C1;
+        public const int CURRENT_LEGACY_FILE_VERSION = -7;
 
-        private const int   MinimumPackageSize = 32;
+        private const int MinimumPackageSize = 32;
 
         private bool _isFilterEditorOnly;
         public bool IsFilterEditorOnly => this._isFilterEditorOnly;
@@ -385,12 +386,12 @@ namespace UnrealUAssetConverter.Unreal
                 this.AssetRegistryDataOffset = br.ReadInt32();
                 this.BulkDataStartOffset = br.ReadInt64();
 
-                if(this._fileVersionUE4 >= 224)
+                if (this._fileVersionUE4 >= 224)
                 {
                     this.WorldTileInfoDataOffset = br.ReadInt32();
                 }
 
-                if(this._fileVersionUE4 >= 326)
+                if (this._fileVersionUE4 >= 326)
                 {
                     int numChunks = br.ReadInt32();
                     this.ChunkIds = new List<int>();
@@ -399,7 +400,7 @@ namespace UnrealUAssetConverter.Unreal
                         this.ChunkIds.Add(br.ReadInt32());
                     }
                 }
-                else if(this._fileVersionUE4 >= 278)
+                else if (this._fileVersionUE4 >= 278)
                 {
                     this.ChunkIds = new List<int>() { br.ReadInt32() };
                 }

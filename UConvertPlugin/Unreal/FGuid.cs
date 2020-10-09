@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     //TODO: Replace with dynamically compiled FGuid struct
     public class FGuid

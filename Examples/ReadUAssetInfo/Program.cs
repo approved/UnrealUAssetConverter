@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
+using UConvertPlugin.Unreal;
 using UnrealUAssetConverter;
-using UnrealUAssetConverter.Unreal;
 
 namespace ReadUAssetInfo
 {
@@ -34,6 +34,12 @@ namespace ReadUAssetInfo
                 Console.WriteLine($"Package Flags: {summ.PackageFlags}");
                 Console.WriteLine($"{summ.ImportCount} imported objects");
                 Console.WriteLine($"{summ.ExportCount} exported objects");
+
+                Console.WriteLine("Plugins Loaded:");
+                foreach (var plugin in uaConverter.Plugins)
+                {
+                    Console.WriteLine($"\t{plugin.Key}");
+                }
             }
         }
     }

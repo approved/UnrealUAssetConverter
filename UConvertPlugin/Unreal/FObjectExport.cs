@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     public class FObjectExport : FObjectResource
     {
@@ -106,7 +106,7 @@ namespace UnrealUAssetConverter.Unreal
         public int SerializationBeforeCreateDependencies;
         public int CreateBeforeCreateDependencies;
 
-        public FObjectExport(UAssetConverter converter)
+        public FObjectExport(IAssetConverter converter)
         {
 
             FPackageFileSummary? summ = converter.GetSummary();
@@ -144,7 +144,7 @@ namespace UnrealUAssetConverter.Unreal
                 this.PackageGuid = new FGuid(converter.GetAssetStream());
                 this.PackageFlags = (EPackageFlags)br.ReadInt32();
 
-                if(summ.GetUE4Version() >= 365)
+                if (summ.GetUE4Version() >= 365)
                 {
                     this.IsNotAlwaysLoadedForEditorGame = br.ReadInt32() != 0;
                 }

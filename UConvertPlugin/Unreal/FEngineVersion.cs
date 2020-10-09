@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     public class FEngineVersion : FEngineVersionBase
     {

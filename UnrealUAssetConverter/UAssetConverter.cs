@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Text;
-using UnrealUAssetConverter.Unreal;
+using UConvertPlugin;
+using UConvertPlugin.Unreal;
 
 namespace UnrealUAssetConverter
 {
     /* Alias for Unreal's Linker */
-    public class UAssetConverter : IDisposable
+    public class UAssetConverter : IDisposable, IAssetConverter
     {
         private bool _isDisposed = false;
 
@@ -33,11 +34,15 @@ namespace UnrealUAssetConverter
         private readonly List<int> _dependencies = new List<int>();
         private readonly List<int> _preloadDependencies = new List<int>();
 
+        private PluginLoader? _pluginLoader = null;
+        public readonly Dictionary<string, IConverterPlugin> Plugins = new Dictionary<string, IConverterPlugin>();
+
         public UAssetConverter(FileInfo assetFile)
         {
             Contract.Requires(assetFile.Exists);
 
             this._openAssetStream = assetFile.OpenRead();
+            GetConverterPlugins();
         }
 
         public UAssetConverter(FileInfo assetFile, FileInfo exportFile)
@@ -49,6 +54,7 @@ namespace UnrealUAssetConverter
             {
                 this._openExportStream = exportFile.OpenRead();
             }
+            GetConverterPlugins();
         }
 
         public UAssetConverter(string assetFile, string exportFile = "")
@@ -60,6 +66,7 @@ namespace UnrealUAssetConverter
             {
                 this._openExportStream = new FileStream(exportFile, FileMode.Open, FileAccess.Read);
             }
+            GetConverterPlugins();
         }
 
         public UAssetConverter(byte[] assetData)
@@ -67,6 +74,7 @@ namespace UnrealUAssetConverter
             Contract.Requires(assetData.Length > 0);
 
             this._openAssetStream = new MemoryStream(assetData);
+            GetConverterPlugins();
         }
 
         public UAssetConverter(byte[] assetData, byte[] exportData)
@@ -75,6 +83,24 @@ namespace UnrealUAssetConverter
 
             this._openAssetStream = new MemoryStream(assetData);
             this._openExportStream = new MemoryStream(exportData);
+            GetConverterPlugins();
+        }
+
+        private void GetConverterPlugins()
+        {
+            if (!Directory.Exists(PluginLoader.PluginDirectory))
+            {
+                Directory.CreateDirectory(PluginLoader.PluginDirectory);
+            }
+
+            List<IConverterPlugin> plugins = PluginLoader.LoadAllPlugins<IConverterPlugin>();
+            if (plugins.Count > 0)
+            {
+                foreach (IConverterPlugin plugin in plugins)
+                {
+                    this.Plugins.Add(plugin.GetPropertyName(), plugin);
+                }
+            }
         }
 
         public FPackageFileSummary GetSummary()

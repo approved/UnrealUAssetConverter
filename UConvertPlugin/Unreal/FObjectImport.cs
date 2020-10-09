@@ -1,14 +1,14 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     public class FObjectImport : FObjectResource
     {
         public FName ClassPackage;
         public FName ClassName;
 
-        public FObjectImport(UAssetConverter converter) : base(converter)
+        public FObjectImport(IAssetConverter converter) : base(converter)
         {
             using (BinaryReader br = new BinaryReader(converter.GetAssetStream(), Encoding.UTF8, true))
             {

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     public class FObjectResource
     {
@@ -12,7 +12,7 @@ namespace UnrealUAssetConverter.Unreal
         internal FObjectResource() { }
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
-        public FObjectResource(UAssetConverter converter)
+        public FObjectResource(IAssetConverter converter)
         {
             using (BinaryReader br = new BinaryReader(converter.GetAssetStream(), Encoding.UTF8, true))
             {

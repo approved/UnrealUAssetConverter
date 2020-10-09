@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     public class FNameEntrySerialized
     {
@@ -27,7 +27,7 @@ namespace UnrealUAssetConverter.Unreal
             using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, true))
             {
                 this.Name = new FString(stream);
-                if(this.Name.Value.Length > MaxNameSize)
+                if (this.Name.Value.Length > MaxNameSize)
                 {
                     throw new InvalidDataException("Name longer than expected. Can not continue reading.");
                 }

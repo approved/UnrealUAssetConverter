@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace UnrealUAssetConverter.Unreal
+namespace UConvertPlugin.Unreal
 {
     /// <summary>
     /// Structure to hold unique custom key with its version.

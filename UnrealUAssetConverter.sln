@@ -5,9 +5,15 @@ VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnrealUAssetConverter", "UnrealUAssetConverter\UnrealUAssetConverter.csproj", "{9CBF59D5-018B-469C-AF95-281154395787}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "\Examples", "{E8C1EE4C-8C72-43F3-A171-561E36220FD0}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{E8C1EE4C-8C72-43F3-A171-561E36220FD0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadUAssetInfo", "Examples\ReadUAssetInfo\ReadUAssetInfo.csproj", "{789FBE90-C3ED-4E1E-A539-10822B520E9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadUAssetInfo", "Examples\ReadUAssetInfo\ReadUAssetInfo.csproj", "{789FBE90-C3ED-4E1E-A539-10822B520E9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UConvertPlugin", "UConvertPlugin\UConvertPlugin.csproj", "{0235D9A1-1410-4F6C-8C7C-C29F9766A609}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{B39C0AC1-258E-4549-8D07-6BA375A3015B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BytePropertyPlugin", "Examples\Plugins\BytePropertyPlugin\BytePropertyPlugin.csproj", "{48E78EAC-26EF-4B74-ADD6-8E04DE0FAAA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +29,22 @@ Global
 		{789FBE90-C3ED-4E1E-A539-10822B520E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{789FBE90-C3ED-4E1E-A539-10822B520E9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{789FBE90-C3ED-4E1E-A539-10822B520E9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0235D9A1-1410-4F6C-8C7C-C29F9766A609}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0235D9A1-1410-4F6C-8C7C-C29F9766A609}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0235D9A1-1410-4F6C-8C7C-C29F9766A609}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0235D9A1-1410-4F6C-8C7C-C29F9766A609}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48E78EAC-26EF-4B74-ADD6-8E04DE0FAAA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48E78EAC-26EF-4B74-ADD6-8E04DE0FAAA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48E78EAC-26EF-4B74-ADD6-8E04DE0FAAA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48E78EAC-26EF-4B74-ADD6-8E04DE0FAAA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{789FBE90-C3ED-4E1E-A539-10822B520E9B} = {E8C1EE4C-8C72-43F3-A171-561E36220FD0}
+		{B39C0AC1-258E-4549-8D07-6BA375A3015B} = {E8C1EE4C-8C72-43F3-A171-561E36220FD0}
+		{48E78EAC-26EF-4B74-ADD6-8E04DE0FAAA1} = {B39C0AC1-258E-4549-8D07-6BA375A3015B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BB2AAFB-EA32-4A94-A8BC-2B42A4D36FE4}
