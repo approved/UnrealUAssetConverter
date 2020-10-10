@@ -34,7 +34,8 @@ namespace UnrealUAssetConverter
         private readonly List<int> _dependencies = new List<int>();
         private readonly List<int> _preloadDependencies = new List<int>();
 
-        public readonly Dictionary<string, Type> Plugins = new Dictionary<string, Type>();
+        private readonly Dictionary<string, Type> _plugins = new Dictionary<string, Type>();
+        public Dictionary<string, Type> GetPlugins() => _plugins;
 
         public UAssetConverter(FileInfo assetFile)
         {
@@ -101,7 +102,7 @@ namespace UnrealUAssetConverter
                     if (plugin is not null)
                     {
                         string propertyName = plugin.GetPropertyName();
-                        this.Plugins.Add(propertyName, pluginType);
+                        this._plugins.Add(propertyName, pluginType);
                     }
                 }
             }
@@ -255,74 +256,122 @@ namespace UnrealUAssetConverter
             return this._preloadDependencies;
         }
 
-        public List<object> GetExportProperties(FObjectExport export)
+        private (bool, object?) GetProperty()
         {
-            List<object> properties = new List<object>();
             using (BinaryReader br = new BinaryReader(this.GetExportStream(), Encoding.UTF8, true))
             {
-                long lastPos = this._openAssetStream.Position;
-                if (br.BaseStream.Position != export.ExportFileOffset)
+                FName propertyName = new FName(this.GetNameMap(), br.BaseStream);
+
+                if (propertyName.Name.Equals("None"))
                 {
-                    br.BaseStream.Seek(export.ExportFileOffset, SeekOrigin.Begin);
+                    //TODO: Maybe figure out how to grab other properties if there is still data left.
+                    return (false, null);
                 }
 
-                while (true)
+                FName propertyType = new FName(this.GetNameMap(), br.BaseStream);
+                int propertySize = br.ReadInt32();
+                int arrayIndex = br.ReadInt32();
+
+                long propPos = br.BaseStream.Position;
+                if (_plugins.ContainsKey(propertyType.Name))
                 {
-                    FName propertyName = new FName(this.GetNameMap(), br.BaseStream);
-
-                    if (propertyName.Name.Equals("None"))
+                    IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(_plugins[propertyType.Name]);
+                    if (plugin is not null)
                     {
-                        //TODO: Maybe figure out how to grab other properties if there is still data left.
-                        break;
-                    }
-
-                    FName propertyType = new FName(this.GetNameMap(), br.BaseStream);
-                    int propertySize = br.ReadInt32();
-                    int arrayIndex = br.ReadInt32();
-
-                    long propPos = br.BaseStream.Position;
-                    if (Plugins.ContainsKey(propertyType.Name))
-                    {
-                        IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(Plugins[propertyType.Name]);
-                        if (plugin is not null)
+                        if (plugin.HasTagData())
                         {
-                            if (plugin.HasTagData())
-                            {
-                                plugin.DeserializePropertyTagData(this);
-                            }
-
-                            if (br.ReadByte() != 0)
-                            {
-                                new FGuid(this.GetAssetStream());
-                            }
-
-                            propPos = br.BaseStream.Position;
-                            if (plugin.HasTagValue())
-                            {
-                                plugin.DeserializePropertyTagValue(this);
-                            }
-                            properties.Add(plugin);
+                            plugin.DeserializePropertyTagData(this);
                         }
-                    }
-                    else
-                    {
+
                         if (br.ReadByte() != 0)
                         {
                             new FGuid(this.GetAssetStream());
                         }
-                        propPos = br.BaseStream.Position;
-                    }
 
-                    br.BaseStream.Seek(propPos, SeekOrigin.Begin);
-                    br.BaseStream.Seek(propertySize, SeekOrigin.Current);
-                    if(br.BaseStream.Position == br.BaseStream.Length || br.BaseStream.Position == export.ExportFileOffset + export.SerialSize)
+                        propPos = br.BaseStream.Position;
+                        if (plugin.HasTagValue())
+                        {
+                            plugin.DeserializePropertyTagValue(this);
+                        }
+
+                        br.BaseStream.Seek(propPos, SeekOrigin.Begin);
+                        br.BaseStream.Seek(propertySize, SeekOrigin.Current);
+                        return (true, plugin);
+                    }
+                }
+                else
+                {
+                    if (br.ReadByte() != 0)
+                    {
+                        new FGuid(this.GetAssetStream());
+                    }
+                    propPos = br.BaseStream.Position;
+                }
+
+                br.BaseStream.Seek(propPos, SeekOrigin.Begin);
+                br.BaseStream.Seek(propertySize, SeekOrigin.Current);
+                return (false, null);
+            }
+        }
+
+        public List<object> GetExportProperties(FObjectExport export)
+        {
+            List<object> properties = new List<object>();
+            long lastPos = this._openExportStream.Position;
+            if (this._openExportStream.Position != export.ExportFileOffset)
+            {
+                this._openExportStream.Seek(export.ExportFileOffset, SeekOrigin.Begin);
+            }
+
+            while (true)
+            {
+                (bool, object?) property = GetProperty();
+
+                if (property.Item1)
+                {
+                    properties.Add(property.Item2);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            this._openExportStream.Seek(lastPos, SeekOrigin.Begin);
+
+            return properties;
+        }
+
+        public List<object> GetValueProperties(string parentType)
+        {
+            List<object> properties = new List<object>();
+            if (_plugins.ContainsKey(parentType))
+            {
+                IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(_plugins[parentType]);
+                if (plugin is not null)
+                {
+                    if (plugin.HasTagValue())
+                    {
+                        plugin.DeserializePropertyTagValue(this);
+                        properties.Add(plugin);
+                    }
+                }
+            }
+            else
+            {
+                while (true)
+                {
+                    (bool, object?) property = GetProperty();
+
+                    if (property.Item1)
+                    {
+                        properties.Add(property.Item2);
+                    }
+                    else
                     {
                         break;
                     }
                 }
-                this._openAssetStream.Seek(lastPos, SeekOrigin.Begin);
             }
-
             return properties;
         }
 

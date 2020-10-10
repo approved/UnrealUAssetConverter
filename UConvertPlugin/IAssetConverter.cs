@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UConvertPlugin.Unreal;
 
@@ -14,5 +15,7 @@ namespace UConvertPlugin
         public List<FObjectExport> GetExportMap();
         public List<int> GetDependencyMap();
         public List<int> GetPreloadDependencyMap();
+        public Dictionary<string, Type> GetPlugins();
+        public List<object> GetValueProperties(string parentType);
     }
 }

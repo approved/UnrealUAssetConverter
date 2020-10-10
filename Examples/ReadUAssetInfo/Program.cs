@@ -42,7 +42,7 @@ namespace ReadUAssetInfo
                 Console.WriteLine($"{summ.ExportCount} exported objects");
 
                 Console.WriteLine("Plugins Loaded:");
-                foreach (var plugin in uaConverter.Plugins)
+                foreach (var plugin in uaConverter.GetPlugins())
                 {
                     Console.WriteLine($"\t{plugin.Key}");
                 }
