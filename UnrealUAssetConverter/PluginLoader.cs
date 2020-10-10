@@ -76,9 +76,9 @@ namespace UnrealUAssetConverter
             return this.LoadPlugin(plugin.Name);
         }
 
-        public static List<T> LoadAllPlugins<T>()
+        public static List<Type> LoadAllPlugins<T>()
         {
-            List<T> pluginTypeList = new List<T>();
+            List<Type> pluginTypeList = new List<Type>();
             string? assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if (!string.IsNullOrEmpty(assemblyFolder))
             {
@@ -93,11 +93,7 @@ namespace UnrealUAssetConverter
                         IEnumerable<Type>? validPluginTypes = asm.GetTypes().Where(x => typeof(T).IsAssignableFrom(x));
                         foreach (Type? pluginType in validPluginTypes)
                         {
-                            T pluginInstance = (T)Activator.CreateInstance(pluginType);
-                            if (pluginInstance is not null)
-                            {
-                                pluginTypeList.Add(pluginInstance);
-                            }
+                            pluginTypeList.Add(pluginType);
                         }
                     }
                 }

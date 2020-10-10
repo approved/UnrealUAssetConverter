@@ -12,46 +12,42 @@ namespace BytePropertyPlugin
         public byte Value;
 
         public string GetPropertyName() => "ByteProperty";
-        public bool IsPostProperty() => true;
-        public bool IsPreProperty() => true;
+        public bool HasTagData() => true;
+        public bool HasTagValue() => true;
 
-        public void Deserialize(IAssetConverter converter, bool isPre = false)
+        public void DeserializePropertyTagData(IAssetConverter converter)
         {
-            using (BinaryReader br = new BinaryReader(converter.GetAssetStream(), Encoding.UTF8, true))
+            this.Name = new FName(converter.GetNameMap(), converter.GetExportStream());
+        }
+
+        public void DeserializePropertyTagValue(IAssetConverter converter)
+        {
+            using (BinaryReader br = new BinaryReader(converter.GetExportStream(), Encoding.UTF8, true))
             {
-                if (isPre)
-                {
-                    this.Name = new FName(converter.GetNameMap(), converter.GetAssetStream());
-                }
-                else
-                {
-                    this.Value = br.ReadByte();
-                }
+                this.Value = br.ReadByte();
             }
         }
 
-        public byte[] Serialize(IAssetConverter converter, bool isPre = false)
+        public byte[] SerializePropertyTagData(IAssetConverter converter)
         {
-            if(isPre)
+            byte[] bytes = new byte[8];
+            int i = 0;
+            foreach (FNameEntrySerialized name in converter.GetNameMap())
             {
-                byte[] bytes = new byte[8];
-                int i = 0;
-                foreach (FNameEntrySerialized name in converter.GetNameMap())
+                if (name.Equals(this.Name))
                 {
-                    if (name.Equals(this.Name))
-                    {
-                        Array.Copy(BitConverter.GetBytes(i), bytes, 4);
-                        break;
-                    }
-                    i++;
+                    Array.Copy(BitConverter.GetBytes(i), bytes, 4);
+                    break;
                 }
-                Array.Copy(BitConverter.GetBytes(this.Name.NameCount), 0, bytes, 4, 4);
-                return bytes;
+                i++;
             }
-            else
-            {
-                return new byte[] { this.Value };
-            }
+            Array.Copy(BitConverter.GetBytes(this.Name.NameCount), 0, bytes, 4, 4);
+            return bytes;
+        }
+
+        public byte[] SerializePropertyTagValue(IAssetConverter converter)
+        {
+            return new byte[] { this.Value };
         }
     }
 }

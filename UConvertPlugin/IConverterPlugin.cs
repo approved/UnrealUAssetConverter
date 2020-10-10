@@ -3,9 +3,11 @@
     public interface IConverterPlugin
     {
         public string GetPropertyName();
-        public bool IsPreProperty();
-        public bool IsPostProperty();
-        public void Deserialize(IAssetConverter converter, bool isPre);
-        public byte[] Serialize(IAssetConverter converter, bool isPre);
+        public bool HasTagData();
+        public bool HasTagValue();
+        public void DeserializePropertyTagData(IAssetConverter converter);
+        public void DeserializePropertyTagValue(IAssetConverter converter);
+        public byte[] SerializePropertyTagData(IAssetConverter converter);
+        public byte[] SerializePropertyTagValue(IAssetConverter converter);
     }
 }

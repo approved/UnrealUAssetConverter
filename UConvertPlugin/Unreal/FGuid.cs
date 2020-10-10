@@ -10,10 +10,10 @@ namespace UConvertPlugin.Unreal
     {
         private static readonly Regex matcher = new Regex("([A-F0-9]{8}-?){4}");
 
-        private readonly int A;
-        private readonly int B;
-        private readonly int C;
-        private readonly int D;
+        public readonly int A;
+        public readonly int B;
+        public readonly int C;
+        public readonly int D;
 
         public string Guid => this.ToString();
 

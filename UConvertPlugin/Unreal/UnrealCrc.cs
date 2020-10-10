@@ -158,11 +158,9 @@
         public static uint StrCrc32(string data, uint remainder = 0)
         {
             remainder = ~remainder;
-            int i = 0;
-            char c;
-            while ((c = data[i++]) != '\0')
+            for (int i = 0; i < data.Length; i++)
             {
-                remainder = (remainder >> 8) ^ CRCTablesSB8[0][(remainder ^ c) & 0xFF];
+                remainder = (remainder >> 8) ^ CRCTablesSB8[0][(remainder ^ data[i]) & 0xFF];
                 remainder = (remainder >> 8) ^ CRCTablesSB8[0][(remainder) & 0xFF];
                 remainder = (remainder >> 8) ^ CRCTablesSB8[0][(remainder) & 0xFF];
                 remainder = (remainder >> 8) ^ CRCTablesSB8[0][(remainder) & 0xFF];

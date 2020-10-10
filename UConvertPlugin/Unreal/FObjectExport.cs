@@ -124,6 +124,8 @@ namespace UConvertPlugin.Unreal
                 this.Index = resource.Index;
                 this.ObjectName = resource.ObjectName;
 
+                this.ObjectFlags = (EObjectFlags)br.ReadInt32();
+
                 if (summ.GetUE4Version() >= 511)
                 {
                     this.SerialSize = br.ReadInt64();

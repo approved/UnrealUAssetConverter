@@ -34,8 +34,7 @@ namespace UnrealUAssetConverter
         private readonly List<int> _dependencies = new List<int>();
         private readonly List<int> _preloadDependencies = new List<int>();
 
-        private PluginLoader? _pluginLoader = null;
-        public readonly Dictionary<string, IConverterPlugin> Plugins = new Dictionary<string, IConverterPlugin>();
+        public readonly Dictionary<string, Type> Plugins = new Dictionary<string, Type>();
 
         public UAssetConverter(FileInfo assetFile)
         {
@@ -93,12 +92,17 @@ namespace UnrealUAssetConverter
                 Directory.CreateDirectory(PluginLoader.PluginDirectory);
             }
 
-            List<IConverterPlugin> plugins = PluginLoader.LoadAllPlugins<IConverterPlugin>();
+            List<Type> plugins = PluginLoader.LoadAllPlugins<IConverterPlugin>();
             if (plugins.Count > 0)
             {
-                foreach (IConverterPlugin plugin in plugins)
+                foreach (Type pluginType in plugins)
                 {
-                    this.Plugins.Add(plugin.GetPropertyName(), plugin);
+                    IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(pluginType);
+                    if (plugin is not null)
+                    {
+                        string propertyName = plugin.GetPropertyName();
+                        this.Plugins.Add(propertyName, pluginType);
+                    }
                 }
             }
         }
@@ -107,7 +111,10 @@ namespace UnrealUAssetConverter
         {
             if (this._packageFileSummary is null)
             {
+                long lastPos = this._openAssetStream.Position;
+                this._openAssetStream.Seek(0, SeekOrigin.Begin);
                 this._packageFileSummary = FPackageFileSummary.Deserialize(this._openAssetStream);
+                this._openAssetStream.Seek(lastPos, SeekOrigin.Begin);
             }
 
             return this._packageFileSummary;
@@ -120,6 +127,7 @@ namespace UnrealUAssetConverter
                 FPackageFileSummary? summ = GetSummary();
                 if (summ.NameCount > 0)
                 {
+                    long lastPos = this._openAssetStream.Position;
                     if (this._openAssetStream.Position != summ.NameOffset)
                     {
                         this._openAssetStream.Seek(summ.NameOffset, SeekOrigin.Begin);
@@ -133,6 +141,7 @@ namespace UnrealUAssetConverter
                         };
                         this._names.Add(name);
                     }
+                    this._openAssetStream.Seek(lastPos, SeekOrigin.Begin);
                 }
             }
 
@@ -146,6 +155,7 @@ namespace UnrealUAssetConverter
                 FPackageFileSummary? summ = GetSummary();
                 if (summ.ImportCount > 0)
                 {
+                    long lastPos = this._openAssetStream.Position;
                     if (this._openAssetStream.Position != summ.ImportOffset)
                     {
                         this._openAssetStream.Seek(summ.ImportOffset, SeekOrigin.Begin);
@@ -155,6 +165,7 @@ namespace UnrealUAssetConverter
                     {
                         this._imports.Add(new FObjectImport(this));
                     }
+                    this._openAssetStream.Seek(lastPos, SeekOrigin.Begin);
                 }
             }
 
@@ -168,6 +179,7 @@ namespace UnrealUAssetConverter
                 FPackageFileSummary? summ = GetSummary();
                 if (summ.ExportCount > 0)
                 {
+                    long lastPos = this._openAssetStream.Position;
                     if (this._openAssetStream.Position != summ.ExportOffset)
                     {
                         this._openAssetStream.Seek(summ.ExportOffset, SeekOrigin.Begin);
@@ -177,6 +189,7 @@ namespace UnrealUAssetConverter
                     {
                         this._exports.Add(new FObjectExport(this));
                     }
+                    this._openAssetStream.Seek(lastPos, SeekOrigin.Begin);
                 }
             }
 
@@ -195,7 +208,8 @@ namespace UnrealUAssetConverter
 
                 if (summ.ExportCount > 0)
                 {
-                    if(this._openAssetStream.Position != summ.DependsOffset)
+                    long lastPos = this._openAssetStream.Position;
+                    if (this._openAssetStream.Position != summ.DependsOffset)
                     {
                         this._openAssetStream.Seek(summ.DependsOffset, SeekOrigin.Begin);
                     }
@@ -207,6 +221,7 @@ namespace UnrealUAssetConverter
                             this._dependencies.Add(br.ReadInt32());
                         }
                     }
+                    this._openAssetStream.Seek(lastPos, SeekOrigin.Begin);
                 }
             }
 
@@ -220,6 +235,7 @@ namespace UnrealUAssetConverter
                 FPackageFileSummary? summ = GetSummary();
                 if (summ.PreloadDependencyCount >= 1 && summ.PreloadDependencyOffset != 0)
                 {
+                    long lastPos = this._openAssetStream.Position;
                     if (this._openAssetStream.Position != summ.PreloadDependencyOffset)
                     {
                         this._openAssetStream.Seek(summ.PreloadDependencyOffset, SeekOrigin.Begin);
@@ -232,10 +248,82 @@ namespace UnrealUAssetConverter
                             this._preloadDependencies.Add(br.ReadInt32());
                         }
                     }
+                    this._openAssetStream.Seek(lastPos, SeekOrigin.Begin);
                 }
             }
 
             return this._preloadDependencies;
+        }
+
+        public List<object> GetExportProperties(FObjectExport export)
+        {
+            List<object> properties = new List<object>();
+            using (BinaryReader br = new BinaryReader(this.GetExportStream(), Encoding.UTF8, true))
+            {
+                long lastPos = this._openAssetStream.Position;
+                if (br.BaseStream.Position != export.ExportFileOffset)
+                {
+                    br.BaseStream.Seek(export.ExportFileOffset, SeekOrigin.Begin);
+                }
+
+                while (true)
+                {
+                    FName propertyName = new FName(this.GetNameMap(), br.BaseStream);
+
+                    if (propertyName.Name.Equals("None"))
+                    {
+                        //TODO: Maybe figure out how to grab other properties if there is still data left.
+                        break;
+                    }
+
+                    FName propertyType = new FName(this.GetNameMap(), br.BaseStream);
+                    int propertySize = br.ReadInt32();
+                    int arrayIndex = br.ReadInt32();
+
+                    long propPos = br.BaseStream.Position;
+                    if (Plugins.ContainsKey(propertyType.Name))
+                    {
+                        IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(Plugins[propertyType.Name]);
+                        if (plugin is not null)
+                        {
+                            if (plugin.HasTagData())
+                            {
+                                plugin.DeserializePropertyTagData(this);
+                            }
+
+                            if (br.ReadByte() != 0)
+                            {
+                                new FGuid(this.GetAssetStream());
+                            }
+
+                            propPos = br.BaseStream.Position;
+                            if (plugin.HasTagValue())
+                            {
+                                plugin.DeserializePropertyTagValue(this);
+                            }
+                            properties.Add(plugin);
+                        }
+                    }
+                    else
+                    {
+                        if (br.ReadByte() != 0)
+                        {
+                            new FGuid(this.GetAssetStream());
+                        }
+                        propPos = br.BaseStream.Position;
+                    }
+
+                    br.BaseStream.Seek(propPos, SeekOrigin.Begin);
+                    br.BaseStream.Seek(propertySize, SeekOrigin.Current);
+                    if(br.BaseStream.Position == br.BaseStream.Length || br.BaseStream.Position == export.ExportFileOffset + export.SerialSize)
+                    {
+                        break;
+                    }
+                }
+                this._openAssetStream.Seek(lastPos, SeekOrigin.Begin);
+            }
+
+            return properties;
         }
 
         public void Dispose()
