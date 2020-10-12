@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UConvertPlugin.Unreal;
 using UnrealUAssetConverter;
@@ -51,10 +52,7 @@ namespace ReadUAssetInfo
                 foreach(FObjectExport export in uaConverter.GetExportMap())
                 {
                     Console.WriteLine($"{export.ObjectName.Name}:");
-                    foreach(object prop in uaConverter.GetExportProperties(export))
-                    {
-                        Console.WriteLine($"\t{JsonConvert.SerializeObject(prop)}");
-                    }
+                    Console.WriteLine($"{JsonConvert.SerializeObject(uaConverter.GetExportProperties(export), Formatting.Indented)}");
                 }
             }
         }
