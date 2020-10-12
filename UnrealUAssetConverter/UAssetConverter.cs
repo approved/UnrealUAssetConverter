@@ -273,39 +273,46 @@ namespace UnrealUAssetConverter
                 int arrayIndex = br.ReadInt32();
 
                 long propPos = br.BaseStream.Position;
-                if (_plugins.ContainsKey(propertyType.Name))
+                try
                 {
-                    IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(_plugins[propertyType.Name]);
-                    if (plugin is not null)
+                    if (_plugins.ContainsKey(propertyType.Name))
                     {
-                        if (plugin.HasTagData())
+                        IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(_plugins[propertyType.Name]);
+                        if (plugin is not null)
                         {
-                            plugin.DeserializePropertyTagData(this);
-                        }
+                            if (plugin.HasTagData())
+                            {
+                                plugin.DeserializePropertyTagData(this);
+                            }
 
+                            if (br.ReadByte() != 0)
+                            {
+                                new FGuid(this.GetAssetStream());
+                            }
+
+                            propPos = br.BaseStream.Position;
+                            if (plugin.HasTagValue())
+                            {
+                                plugin.DeserializePropertyTagValue(this);
+                            }
+
+                            br.BaseStream.Seek(propPos, SeekOrigin.Begin);
+                            br.BaseStream.Seek(propertySize, SeekOrigin.Current);
+                            return (true, plugin);
+                        }
+                    }
+                    else
+                    {
                         if (br.ReadByte() != 0)
                         {
                             new FGuid(this.GetAssetStream());
                         }
-
                         propPos = br.BaseStream.Position;
-                        if (plugin.HasTagValue())
-                        {
-                            plugin.DeserializePropertyTagValue(this);
-                        }
-
-                        br.BaseStream.Seek(propPos, SeekOrigin.Begin);
-                        br.BaseStream.Seek(propertySize, SeekOrigin.Current);
-                        return (true, plugin);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    if (br.ReadByte() != 0)
-                    {
-                        new FGuid(this.GetAssetStream());
-                    }
-                    propPos = br.BaseStream.Position;
+                    Console.WriteLine($"Failed to get property for type {propertyName.Name}");
                 }
 
                 br.BaseStream.Seek(propPos, SeekOrigin.Begin);
@@ -344,33 +351,45 @@ namespace UnrealUAssetConverter
         public List<object> GetValueProperties(string parentType)
         {
             List<object> properties = new List<object>();
-            if (_plugins.ContainsKey(parentType))
+            try
             {
-                IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(_plugins[parentType]);
-                if (plugin is not null)
+                if (_plugins.ContainsKey(parentType))
                 {
-                    if (plugin.HasTagValue())
+                    IConverterPlugin? plugin = (IConverterPlugin?)Activator.CreateInstance(_plugins[parentType]);
+                    if (plugin is not null)
                     {
-                        plugin.DeserializePropertyTagValue(this);
-                        properties.Add(plugin);
+                        if (plugin.HasTagData())
+                        {
+                            plugin.DeserializePropertyTagData(this);
+                        }
+
+                        if (plugin.HasTagValue())
+                        {
+                            plugin.DeserializePropertyTagValue(this);
+                            properties.Add(plugin);
+                        }
+                    }
+                }
+                else
+                {
+                    while (true)
+                    {
+                        (bool, object?) property = GetProperty();
+
+                        if (property.Item1)
+                        {
+                            properties.Add(property.Item2);
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                while (true)
-                {
-                    (bool, object?) property = GetProperty();
-
-                    if (property.Item1)
-                    {
-                        properties.Add(property.Item2);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                Console.WriteLine($"Failed to get property for type {parentType}");
             }
             return properties;
         }
