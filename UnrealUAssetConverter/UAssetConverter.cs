@@ -317,7 +317,7 @@ namespace UnrealUAssetConverter
 
                 br.BaseStream.Seek(propPos, SeekOrigin.Begin);
                 br.BaseStream.Seek(propertySize, SeekOrigin.Current);
-                return (false, null);
+                return (false, new { Type = propertyType, Size = propertySize });
             }
         }
 
@@ -330,13 +330,20 @@ namespace UnrealUAssetConverter
                 this._openExportStream.Seek(export.ExportFileOffset, SeekOrigin.Begin);
             }
 
-            while (true)
+            while (this._openExportStream.Position < export.ExportFileOffset + export.SerialSize)
             {
+                long propPos = this._openExportStream.Position;
                 (bool, object?) property = GetProperty();
 
                 if (property.Item1)
                 {
                     properties.Add(property.Item2);
+                }
+                else if (property.Item2 is not null)
+                {
+                    properties.Add(property.Item2);
+                    this._openExportStream.Seek(propPos, SeekOrigin.Begin);
+                    this._openExportStream.Seek((int)((dynamic)property.Item2).Size + 25, SeekOrigin.Current);
                 }
                 else
                 {
@@ -374,11 +381,18 @@ namespace UnrealUAssetConverter
                 {
                     while (true)
                     {
+                        long lastPos = this._openExportStream.Position;
                         (bool, object?) property = GetProperty();
 
                         if (property.Item1)
                         {
                             properties.Add(property.Item2);
+                        }
+                        else if (property.Item2 is not null)
+                        {
+                            properties.Add(property.Item2);
+                            this._openExportStream.Seek(lastPos, SeekOrigin.Begin);
+                            this._openExportStream.Seek((int)((dynamic)property.Item2).Size + 25, SeekOrigin.Current);
                         }
                         else
                         {
